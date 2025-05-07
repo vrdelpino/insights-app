@@ -1,0 +1,30 @@
+[project]
+name = "streamlit_ui"
+version = "0.1.0"
+description = "Streamlit UI for FastMCP"
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = [
+    "streamlit>=1.31.1,<2",
+    "requests",
+    "python-dotenv",
+    "protobuf",
+    "cachetools",
+    "typing_extensions",
+    "watchdog",
+    "blinker",
+    "pandas",
+    "numpy",
+    "validators",
+    "plotly",
+    "altair",
+    "gitpython",
+    "rich",
+    "click",
+    "semver",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

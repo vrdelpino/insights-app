@@ -1,0 +1,78 @@
+services:
+  neo4j:
+    build: 
+      context: ./neo4j
+    container_name: neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: ${NEO4J_AUTH}
+      NEO4J_apoc_import_file_enabled: "true"
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
+      NEO4J_PLUGINS: '["apoc"]'
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - type: bind
+        source: ./neo4j/seed.cypher
+        target: /var/lib/neo4j/import/seed.cypher
+      - type: bind
+        source: ./neo4j/run-seed.sh
+        target: /docker-entrypoint-initdb.d/run-seed.sh
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7474 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - app_net
+
+  mcp_server:
+    build:
+      context: ./mcp_server
+    container_name: mcp_server
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./mcp_server/.env
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    command: ["python", "-m", "mcp_server"]
+    networks:
+      - app_net
+
+  llm:
+    build:
+      context: ./llm
+    container_name: llm
+    ports:
+      - "5005:5005"
+    env_file:
+      - ./llm/.env
+    depends_on:
+      - mcp_server
+    command: ["uvicorn", "llm.agent_server:app", "--host", "0.0.0.0", "--port", "5005"]
+    networks:
+      - app_net
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: streamlit
+    ports:
+      - "8501:8501"
+    env_file:
+      - ./frontend/.env
+    depends_on:
+      - llm
+    networks:
+      - app_net
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
+
+networks:
+  app_net:
