@@ -1,6 +1,7 @@
 # Python
 __pycache__/
 *.py[cod]
+.python-version
 *$py.class
 .cursor
 *.so

@@ -1,7 +1,7 @@
 [project]
-name = "streamlit_ui"
+name = "frontend"
 version = "0.1.0"
-description = "Streamlit UI for FastMCP"
+description = "Frontend Layer for insights application"
 readme = "README.md"
 requires-python = ">=3.12"
 
